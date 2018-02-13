@@ -1,0 +1,95 @@
+version: 2
+
+jobs:
+  build-linux:
+    docker:
+      - image: golang:1.10rc2-stretch
+    working_directory: /go/src/github.com/zchee/cil
+    steps:
+      - checkout
+      - run:
+          name: "Install nvim binary"
+          command: |
+            set -eux
+            wget -q -O - https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz | tar xzf - --strip-components=1 -C "/usr/local"
+            nvim --version
+      - run:
+          name: "Install go dependencies tools"
+          command: |
+            go get -u \
+              github.com/constabulary/gb/... \
+              github.com/haya14busa/goverage
+      - run:
+          name: "Take a coverage"
+          environment:
+          command: |
+            goverage -v -race -covermode=atomic -coverprofile=coverage.out $(go list -f='{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./src/...)
+      - run:
+          name: "Send coverage reports to codecov.io"
+          command: |
+            bash <(curl -s https://codecov.io/bash)
+
+  build-macos:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      PATH: /Users/distiller/go/bin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+      GOPATH: /Users/distiller/go
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    working_directory: ~/go/src/github.com/zchee/cil
+    steps:
+      - checkout
+      - run:
+          name: install latest go and neovim formula
+          command: |
+            brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/go.rb --devel
+      - run:
+          name: show versions
+          command: |
+            env | sort
+            uname -a
+            sw_vers
+            xcodebuild -version
+            system_profiler SPHardwareDataType
+            go version
+      - run:
+          name: "Install go dependencies tools"
+          command: |
+            go get -u github.com/haya14busa/goverage
+      - run:
+          name: "Take a coverage"
+          environment:
+          command: |
+            go test -v -race -covermode=atomic -coverprofile=coverage.out -coverpkg=all ./...
+      - run:
+          name: "Send coverage reports to codecov.io"
+          command: |
+            bash <(curl -s https://codecov.io/bash)
+
+  reviewdog:
+    docker:
+      - image: zchee/reviewdog
+    working_directory: /go/src/github.com/zchee/cil
+    steps:
+      - checkout
+      - run:
+          name: reviewdog
+          command: reviewdog -ci='circle-ci'
+
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build-linux:
+          filters:
+            tags:
+              only: /.*/
+      - build-macos:
+          filters:
+            tags:
+              only: /.*/
+      - reviewdog:
+          context: org-global
+          filters:
+            branches:
+              ignore: master
