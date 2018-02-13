@@ -1,31 +1,22 @@
 version: 2
 
+defaults: &defaults
+  working_directory: /go/src/github.com/zchee/cil
+
 jobs:
   build-linux:
     docker:
-      - image: golang:1.10rc2-stretch
-    working_directory: /go/src/github.com/zchee/cil
+      - image: golang:1.10-stretch
+    <<: *defaults
     steps:
       - checkout
       - run:
-          name: "Install nvim binary"
-          command: |
-            set -eux
-            wget -q -O - https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz | tar xzf - --strip-components=1 -C "/usr/local"
-            nvim --version
-      - run:
-          name: "Install go dependencies tools"
-          command: |
-            go get -u \
-              github.com/constabulary/gb/... \
-              github.com/haya14busa/goverage
-      - run:
-          name: "Take a coverage"
+          name: take a coverage
           environment:
           command: |
-            goverage -v -race -covermode=atomic -coverprofile=coverage.out $(go list -f='{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./src/...)
+            make coverage
       - run:
-          name: "Send coverage reports to codecov.io"
+          name: send coverage reports to codecov.io
           command: |
             bash <(curl -s https://codecov.io/bash)
 
@@ -34,13 +25,12 @@ jobs:
       xcode: "9.2.0"
     environment:
       PATH: /Users/distiller/go/bin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-      GOPATH: /Users/distiller/go
       HOMEBREW_NO_AUTO_UPDATE: 1
-    working_directory: ~/go/src/github.com/zchee/cil
+    <<: *defaults
     steps:
       - checkout
       - run:
-          name: install latest go and neovim formula
+          name: install latest go formula
           command: |
             brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/go.rb --devel
       - run:
@@ -53,23 +43,19 @@ jobs:
             system_profiler SPHardwareDataType
             go version
       - run:
-          name: "Install go dependencies tools"
-          command: |
-            go get -u github.com/haya14busa/goverage
-      - run:
-          name: "Take a coverage"
+          name: take a coverage
           environment:
           command: |
-            go test -v -race -covermode=atomic -coverprofile=coverage.out -coverpkg=all ./...
+            make coverage
       - run:
-          name: "Send coverage reports to codecov.io"
+          name: send coverage reports to codecov.io
           command: |
             bash <(curl -s https://codecov.io/bash)
 
   reviewdog:
     docker:
       - image: zchee/reviewdog
-    working_directory: /go/src/github.com/zchee/cil
+    <<: *defaults
     steps:
       - checkout
       - run:
