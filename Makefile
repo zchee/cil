@@ -1,45 +1,38 @@
 SHELL = /usr/bin/env bash
 
 APP = cil
-REPOSITORY = github.com/zchee/cil
+REPOSITORY = github.com/zchee/${APP}
 
 GCFLAGS ?=
 LDFLAGS ?=
 
-PACKAGES = $(shell go list ./...)
+PACKAGES = $(shell go list ./... | grep -v -e 'swagger')
 FMT_PACKAGES = $(shell go list -f '{{.Dir}}' ./...)
 GO_TEST_FLAGS ?=
 GO_BENCH_FUNCS ?= .
 GO_BENCH_FLAGS ?= $(GO_TEST_FLAGS) -run=^$$ -bench=${GO_BENCH_FUNCS}
 
+define target
+  @printf "+ \\033[32m$@\\033[0m\\n"
+endef
+
 all: $(APP)
 
-$(APP):
-	go build -v $(GCFLAGS) $(LDFLAGS) -o ./bin/$(APP) $(REPOSITORY)/cmd/$(APP)
 .PHONY: $(APP)
+$(APP):
+	go build -v -o ./$(APP) $(GCFLAGS) $(LDFLAGS) $(REPOSITORY)/cmd/$(APP)
 
-clean:
-	${RM} -r ./bin *.test *.out
 .PHONY: clean
+clean:
+	${RM} -r ./tools *.test *.out
 
-init:
-	go get -u -v github.com/golang/dep/cmd/dep
-
-dep:
-	dep ensure -v
-	dep prune -v
 .PHONY: dep
+dep: $(shell command -v dep)
+	dep ensure -v
 
-
-bin/goimports:
-	go build -o bin/goimports ./vendor/golang.org/x/tools/cmd/goimports
-
-bin/megacheck:
-	go build -o bin/megacheck ./vendor/honnef.co/go/tools/cmd/megacheck
-
-bin/errcheck:
-	go build -o bin/errcheck ./vendor/github.com/kisielk/errcheck
-
+.PHONY: dep.update
+dep.update: $(shell command -v dep)
+	dep ensure -v -update
 
 .PHONY: test
 test:
@@ -51,25 +44,52 @@ benchmark: benchmark
 
 .PHONY: coverage
 coverage:
-	go test -v -race -covermode=atomic -coverpkg=$(REPOSITORY)/... -coverprofile=$@.out ./...
-
+	go test -v -race -covermode=atomic -coverpkg=$(REPOSITORY)/... -coverprofile=coverage.out ./...
 
 .PHONY: lint
-lint: fmt vet megacheck errcheck
+lint: fmt vet goimports golint megacheck errcheck
 
 .PHONY: fmt
-fmt: fmt
-	gofmt -l $(FMT_PACKAGES) | grep -E '.'; test $$? -eq 1
-	./bin/goimports -l $(FMT_PACKAGES) | grep -E '.'; test $$? -eq 1
+fmt:
+	$(call target)
+	@gofmt -s -l $(FMT_PACKAGES) | grep -v -e 'swagger' | grep -E '.'; test $$? -eq 1
 
 .PHONY: vet
 vet:
-	go vet -v $(PACKAGES)
+	$(call target)
+	@go vet -all $(PACKAGES)
 
-.PHONY: staticcheck
-megacheck: bin/megacheck
-	./bin/megacheck $(PACKAGES)
+tools:
+	mkdir ./tools
+
+tools/goimports: tools
+	go build -o $@ ./vendor/golang.org/x/tools/cmd/goimports
+
+.PHONY: goimports
+goimports: tools/goimports
+	$(call target)
+	@./tools/goimports -l $(FMT_PACKAGES) | grep -v -e 'swagger' | grep -E '.'; test $$? -eq 1
+
+tools/golint: tools
+	go build -o $@ ./vendor/golang.org/x/lint/golint
+
+.PHONY: golint
+golint: tools/golint
+	$(call target)
+	@./tools/golint -min_confidence=0.3 -set_exit_status $(PACKAGES)
+
+tools/megacheck: tools
+	go build -o $@ ./vendor/honnef.co/go/tools/cmd/megacheck
+
+.PHONY: megacheck
+megacheck: tools/megacheck
+	$(call target)
+	@./tools/megacheck $(PACKAGES)
+
+tools/errcheck: tools
+	go build -o $@ ./vendor/github.com/kisielk/errcheck
 
 .PHONY: errcheck
-errcheck: bin/errcheck
-	./bin/errcheck -exclude .errcheckignore $(PACKAGES)
+errcheck: tools/errcheck
+	$(call target)
+	@./tools/errcheck -exclude .errcheckignore $(PACKAGES)
