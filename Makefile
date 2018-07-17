@@ -22,9 +22,18 @@ all: $(APP)
 $(APP):
 	go build -v -o ./$(APP) $(GCFLAGS) $(LDFLAGS) $(REPOSITORY)/cmd/$(APP)
 
+.PHONY: swagger
+swagger:
+	swagger-codegen generate -i provider/circleci/schema/swagger.yaml -l go -D 'packageName=circleci' -o provider/circleci/swagger
+	command cp -f ./provider/circleci/types/* ./provider/circleci/swagger
+
 .PHONY: clean
 clean:
 	${RM} -r ./tools *.test *.out
+
+.PHONY: deps
+deps:
+	@go install -v -x $(shell go list -deps ./...)
 
 .PHONY: dep
 dep: $(shell command -v dep)
