@@ -6,7 +6,7 @@ defaults: &defaults
 jobs:
   checkout:
     docker:
-      - image: scratch
+      - image: alpine/git
     <<: *defaults
     steps:
       - checkout
