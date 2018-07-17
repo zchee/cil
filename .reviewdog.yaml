@@ -1,0 +1,19 @@
+runner:
+
+  golint:
+    cmd: ./tools/golint $(go list ./...)
+    errorformat:
+      - "%f:%l:%c: %m"
+
+  govet:
+    cmd: go vet $(go list ./...)
+
+  megacheck:
+    cmd: ./tools/megacheck $(go list ./...)
+    errorformat:
+      - "%f:%l:%c: %m"
+
+  errcheck:
+    cmd: ./tools/errcheck -ignore 'io:.*,ioutil:.*,net/http:.*' -asserts -ignoretests $(go list ./...)
+    errorformat:
+      - "%f:%l:%c:%m"
