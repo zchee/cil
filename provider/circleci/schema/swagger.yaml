@@ -39,13 +39,16 @@ schemes:
 produces:
 - application/json
 
-security:
-- apikey: []
 securityDefinitions:
   apikey:
+    type: apiKey
     in: query
     name: circle-token
-    type: apiKey
+  basicAuth:
+    type: basic
+security:
+- apikey: []
+- basicAuth: []
 
 paths:
   "/me":
@@ -565,21 +568,21 @@ definitions:
     type: array
   Lifecycle:
     enum:
-    - queued
-    - scheduled
+    - finished
     - not_run
     - not_running
+    - queued
     - running
-    - finished
+    - scheduled
     type: string
   Outcome:
     enum:
     - canceled
-    - infrastructure_fail
-    - timedout
     - failed
+    - infrastructure_fail
     - no_tests
     - success
+    - timedout
     type: string
   Parallel:
     description: 'The number of containers to use to run the build. Default is null and the project default is used.'
@@ -715,31 +718,31 @@ definitions:
     type: string
   Scope:
     enum:
-    - write-settings
-    - view-builds
-    - read-settings
-    - trigger-builds
     - all
-    - status
     - none
+    - read-settings
+    - status
+    - trigger-builds
+    - view-builds
+    - write-settings
     type: string
   Sha1:
     type: string
   Status:
     enum:
-    - retried
     - canceled
-    - infrastructure_fail
-    - timedout
-    - not_run
-    - running
     - failed
-    - queued
-    - scheduled
-    - not_running
-    - no_tests
     - fixed
+    - infrastructure_fail
+    - no_tests
+    - not_run
+    - not_running
+    - queued
+    - retried
+    - running
+    - scheduled
     - success
+    - timedout
     type: string
   StringOrNull:
     type: string
@@ -874,9 +877,9 @@ parameters:
       Set to "completed", "successful", "failed", "running", or defaults to no filter.
     enum:
     - completed
-    - successful
     - failed
     - running
+    - successful
     in: query
     name: filter
     type: string
