@@ -58,6 +58,9 @@ coverage:
 .PHONY: lint
 lint: fmt vet goimports golint megacheck errcheck
 
+.PHONY: lint.install
+lint.install: tools/goimports tools/golint tools/megacheck tools/errcheck
+
 .PHONY: fmt
 fmt:
 	$(call target)
