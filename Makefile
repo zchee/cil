@@ -29,7 +29,7 @@ swagger:
 
 .PHONY: clean
 clean:
-	${RM} -r ./tools *.test *.out
+	${RM} -r $(APP) ./tools *.test *.out
 
 .PHONY: deps
 deps:
