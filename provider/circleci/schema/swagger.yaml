@@ -38,6 +38,8 @@ schemes:
 - https
 produces:
 - application/json
+consumes:
+- application/json; charset=utf-8
 
 securityDefinitions:
   apikey:
@@ -54,6 +56,7 @@ paths:
   "/me":
     get:
       description: 'Provides information about the signed in user.'
+      operationId: me
       responses:
         '200':
           description: signed in user
@@ -61,17 +64,18 @@ paths:
             "$ref": "#/definitions/User"
   "/projects":
     get:
-      description: 'List of all the projects you''re following on CircleCI, with build
-        information organized by branch.'
+      description: 'List of all the projects you''re following on CircleCI, with build information organized by branch.'
+      operationId: projects
       responses:
         '200':
           description: 'List of all the projects you''re following on CircleCI'
           schema:
-            "$ref": "#/definitions/Projects"
+            properties:
+              "$ref": "#/definitions/Project"
+            type: object
   "/project/{username}/{project}":
     get:
-      description: 'Build summary for each of the last 30 builds for a single git
-        repo.'
+      description: 'Build summary for each of the last 30 builds for a single git repo.'
       parameters:
       - "$ref": "#/parameters/limit"
       - "$ref": "#/parameters/offset"
@@ -85,8 +89,6 @@ paths:
     - "$ref": "#/parameters/username"
     - "$ref": "#/parameters/project"
     post:
-      consumes:
-      - application/json
       description: 'Triggers a new build, returns a summary of the build.'
       parameters:
       - in: body
@@ -211,8 +213,6 @@ paths:
     - "$ref": "#/parameters/username"
     - "$ref": "#/parameters/project"
     post:
-      consumes:
-      - application/json
       description: 'Create an ssh key used to access external systems that require
         SSH key-based authentication'
       parameters:
@@ -249,8 +249,6 @@ paths:
     - "$ref": "#/parameters/project"
     - "$ref": "#/parameters/branch"
     post:
-      consumes:
-      - application/json
       description: |
         Triggers a new build, returns a summary of the build.
         Optional build parameters can be set using an experimental API.
@@ -386,7 +384,6 @@ definitions:
     properties:
       keypair:
         type: string
-        default: null
     type: object
   Build:
     properties:
@@ -408,7 +405,6 @@ definitions:
       dont_build:
         description: reason why we didn't build, if we didn't build
         type: string
-        default: null
       lifecycle:
         "$ref": "#/definitions/Lifecycle"
       previous:
@@ -422,7 +418,6 @@ definitions:
       retry_of:
         description: build_num of the build this is a retry of
         type: integer
-        default: null
       start_time:
         description: time build started
         format: date-time
@@ -450,7 +445,6 @@ definitions:
       compare:
         format: uri
         type: string
-        default: null
       job_name:
         type: string
       node:
@@ -459,13 +453,10 @@ definitions:
         "$ref": "#/definitions/PreviousBuild"
       retries:
         type: boolean
-        default: null
       ssh_enabled:
         type: boolean
-        default: null
       timedout:
         type: boolean
-        default: null
       usage_queued_at:
         format: date-time
         type: string
@@ -625,7 +616,6 @@ definitions:
             type: boolean
           fleet:
             type: boolean
-            default: null
           junit:
             type: boolean
           oss:
@@ -651,7 +641,6 @@ definitions:
         "$ref": "#/definitions/StringOrNull"
       hipchat_notify_prefs:
         type: string
-        default: null
       hipchat_room:
         "$ref": "#/definitions/StringOrNull"
       irc_channel:
@@ -707,10 +696,6 @@ definitions:
         format: uri
         type: string
     type: object
-  Projects:
-    items:
-      "$ref": "#/definitions/Project"
-    type: array
   Revision:
     description: |
       The specific revision to build.
@@ -790,7 +775,6 @@ definitions:
         type: string
       bitbucket:
         type: object
-        default: null
       bitbucket_authorized:
         type: boolean
       containers:
@@ -811,7 +795,6 @@ definitions:
       github_id:
         type: integer
         format: int64
-        default: null
       github_oauth_scopes:
         items:
           type: string
@@ -819,10 +802,8 @@ definitions:
       gravatar_id:
         type: integer
         format: int64
-        default: null
       heroku_api_key:
         type: string
-        default: null
       in_beta_program:
         type: boolean
       login:
@@ -836,7 +817,6 @@ definitions:
         format: int64
       plan:
         type: string
-        default: null
       projects:
         type: object
       pusher_id:
