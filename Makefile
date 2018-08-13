@@ -12,9 +12,11 @@ GO_TEST_FLAGS ?=
 GO_BENCH_FUNCS ?= .
 GO_BENCH_FLAGS ?= $(GO_TEST_FLAGS) -run=^$$ -bench=${GO_BENCH_FUNCS}
 
+
 define target
   @printf "+ \\033[32m$@\\033[0m\\n"
 endef
+
 
 all: $(APP)
 
@@ -22,14 +24,12 @@ all: $(APP)
 $(APP):
 	go build -v -o ./$(APP) $(GCFLAGS) $(LDFLAGS) $(REPOSITORY)/cmd/$(APP)
 
-.PHONY: swagger
-swagger:
-	swagger-codegen generate -i provider/circleci/schema/swagger.yaml -l go -D 'packageName=circleci' -o provider/circleci/swagger
-	command cp -f ./provider/circleci/types/* ./provider/circleci/swagger
 
-.PHONY: clean
-clean:
-	${RM} -r $(APP) ./tools *.test *.out
+CIRCLECI_API_VERSION = v1.1
+.PHONY: swagger/circleci
+swagger/circleci:
+	rm -rf ./provider/circleci
+	swagger-codegen generate -i ./swagger/circleci/swagger.yaml -l go -D "packageName=circleci" -D "packageVersion=$(CIRCLECI_API_VERSION)" -o ./provider/circleci
 
 .PHONY: deps
 deps:
@@ -43,6 +43,7 @@ dep: $(shell command -v dep)
 dep.update: $(shell command -v dep)
 	dep ensure -v -update
 
+
 .PHONY: test
 test:
 	go test -v $(GO_TEST_FLAGS) $(TEST_SRC_PACKAGES)
@@ -54,6 +55,7 @@ benchmark: benchmark
 .PHONY: coverage
 coverage:
 	go test -v -race -covermode=atomic -coverpkg=$(REPOSITORY)/... -coverprofile=coverage.out ./...
+
 
 .PHONY: lint
 lint: fmt vet goimports golint megacheck errcheck
@@ -105,3 +107,8 @@ tools/errcheck: tools
 errcheck: tools/errcheck
 	$(call target)
 	@./tools/errcheck -exclude .errcheckignore $(PACKAGES)
+
+
+.PHONY: clean
+clean:
+	${RM} -r $(APP) ./tools *.test *.out
