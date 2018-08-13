@@ -1,46 +1,31 @@
 swagger: '2.0'
 
 info:
-  title: CircleCI
+  title: CircleCI API
   version: v1.1
   description: |
-    The CircleCI API is a RESTful, fully-featured API that allows you to do almost anything in CircleCI.
-    You can access all information and trigger all actions.
-    The only thing we don’t provide access to is billing functions, which must be done from the CircleCI web UI.
+    The CircleCI API is a fully-featured JSON API that
+    allows you to access all information and trigger all actions in CircleCI.
   license:
     name: The 3-Clause BSD License
     url: https://opensource.org/licenses/BSD-3-Clause
-  x-applicationinfo:
-    x-API-Description: The CircleCI API is a RESTful, fully-featured API that allows
-      you to do almost anything in CircleCI.\nYou can access all information and trigger
-      all actions.\nThe only thing we donâ€™t provide access to is billing functions,
-      which must be done from the CircleCI web UI.
-    x-API-Documentation-URL: https://circleci.com/docs/api/v1-reference/
-    x-API-Name: CircleCI REST API
-    x-App-Description: Build Faster. Test More. Fail Less.  Automate the software
-      development process using continuous integration and continuous delivery so
-      you can focus on what matters—building great things—not waiting for great things
-      to build.
-    x-App-Logo: https://images.aapi.io/CircleCI_circlecicom
-    x-App-Name: circleci.com
-    x-App-URL: https://circleci.com/
-    x-Category: ''
-    x-Company: CircleCI
-    x-Company-Github: https://github.com/circleci
-    x-Orig-Desc-Format: JSON
-    x-Orig-Desc-Type: Swagger 2.0
-    x-additionalHostNames: ''
-  x-unofficialSpec: true
+
+externalDocs:
+  url: "https://circleci.com/docs/api/v1-reference/"
+  description: "CircleCI API v1.1 Reference"
 
 host: circleci.com
 basePath: /api/v1.1
 schemes:
 - https
-produces:
-- application/json
 consumes:
 - application/json; charset=utf-8
+produces:
+- application/json
 
+security:
+- apikey: []
+- basicAuth: []
 securityDefinitions:
   apikey:
     type: apiKey
@@ -48,48 +33,45 @@ securityDefinitions:
     name: circle-token
   basicAuth:
     type: basic
-security:
-- apikey: []
-- basicAuth: []
 
 paths:
   "/me":
     get:
-      description: 'Provides information about the signed in user.'
+      description: "Provides information about the signed in user."
       operationId: me
       responses:
         '200':
-          description: signed in user
+          description: "signed in user"
           schema:
             "$ref": "#/definitions/User"
   "/projects":
     get:
-      description: 'List of all the projects you''re following on CircleCI, with build information organized by branch.'
+      description: "List of all the projects you''re following on CircleCI, with build information organized by branch."
       operationId: projects
       responses:
         '200':
-          description: 'List of all the projects you''re following on CircleCI'
+          description: "List of all the projects you''re following on CircleCI"
           schema:
-            properties:
+            items:
               "$ref": "#/definitions/Project"
-            type: object
+            type: array
   "/project/{username}/{project}":
     get:
-      description: 'Build summary for each of the last 30 builds for a single git repo.'
+      description: "Build summary for each of the last 30 builds for a single git repo."
       parameters:
       - "$ref": "#/parameters/limit"
       - "$ref": "#/parameters/offset"
       - "$ref": "#/parameters/filter"
       responses:
         '200':
-          description: Build summary for each of the last 30 builds
+          description: "Build summary for each of the last 30 builds"
           schema:
             "$ref": "#/definitions/Builds"
     parameters:
     - "$ref": "#/parameters/username"
     - "$ref": "#/parameters/project"
     post:
-      description: 'Triggers a new build, returns a summary of the build.'
+      description: "Triggers a new build, returns a summary of the build."
       parameters:
       - in: body
         name: body
@@ -106,15 +88,15 @@ paths:
           type: object
       responses:
         '201':
-          description: returns a summary of the build
+          description: "returns a summary of the build"
           schema:
             "$ref": "#/definitions/BuildSummary"
   "/project/{username}/{project}/build-cache":
     delete:
-      description: 'Clears the cache for a project.'
+      description: "Clears the cache for a project."
       responses:
         '200':
-          description: status message
+          description: "status message"
           schema:
             properties:
               status:
@@ -125,10 +107,10 @@ paths:
     - "$ref": "#/parameters/project"
   "/project/{username}/{project}/checkout-key":
     get:
-      description: 'Lists checkout keys.'
+      description: "Lists checkout keys."
       responses:
         '200':
-          description: checkout keys
+          description: "checkout keys"
           schema:
             "$ref": "#/definitions/Keys"
     parameters:
@@ -139,7 +121,7 @@ paths:
         Creates a new checkout key.
         Only usable with a user API token.
       parameters:
-      - description: 'The type of key to create. Can be ''deploy-key'' or ''github-user-key''.'
+      - description: "The type of key to create. Can be 'deploy-key' or 'github-user-key'."
         in: body
         name: type
         schema:
@@ -152,10 +134,10 @@ paths:
           "$ref": "#/responses/key"
   "/project/{username}/{project}/checkout-key/{fingerprint}":
     delete:
-      description: 'Delete a checkout key.'
+      description: "Delete a checkout key."
       responses:
         '200':
-          description: status message
+          description: "status message"
           schema:
             properties:
               message:
@@ -164,7 +146,7 @@ paths:
                 type: string
             type: object
     get:
-      description: 'Get a checkout key.'
+      description: "Get a checkout key."
       responses:
         '200':
           "$ref": "#/responses/key"
@@ -174,7 +156,7 @@ paths:
     - "$ref": "#/parameters/fingerprint"
   "/project/{username}/{project}/envvar":
     get:
-      description: 'Lists the environment variables for :project'
+      description: "Lists the environment variables for :project"
       responses:
         '200':
           "$ref": "#/responses/envvars"
@@ -182,16 +164,16 @@ paths:
     - "$ref": "#/parameters/username"
     - "$ref": "#/parameters/project"
     post:
-      description: 'Creates a new environment variable'
+      description: "Creates a new environment variable"
       responses:
         '200':
           "$ref": "#/responses/envvar"
   "/project/{username}/{project}/envvar/{name}":
     delete:
-      description: 'Deletes the environment variable named '':name'''
+      description: "Deletes the environment variable named ':name'"
       responses:
         '200':
-          description: 'Deletes the environment variable named '':name'''
+          description: "Deletes the environment variable named ':name'"
           schema:
             properties:
               message:
@@ -200,7 +182,7 @@ paths:
                 type: string
             type: object
     get:
-      description: 'Gets the hidden value of environment variable :name'
+      description: "Gets the hidden value of environment variable :name"
       responses:
         '200':
           "$ref": "#/responses/envvar"
@@ -213,8 +195,7 @@ paths:
     - "$ref": "#/parameters/username"
     - "$ref": "#/parameters/project"
     post:
-      description: 'Create an ssh key used to access external systems that require
-        SSH key-based authentication'
+      description: "Create an ssh key used to access external systems that require SSH key-based authentication"
       parameters:
       - enum:
         - application/json
@@ -234,7 +215,7 @@ paths:
           type: object
       responses:
         default:
-          description: no response expected
+          description: "no response expected"
           examples:
             application/json:
               message: a private key is required
@@ -253,7 +234,9 @@ paths:
         Triggers a new build, returns a summary of the build.
         Optional build parameters can be set using an experimental API.
 
-        Note: For more about build parameters, read about [using parameterized builds](https://circleci.com/docs/parameterized-builds/)
+        Note: |
+          For more about build parameters,
+          read about [using parameterized builds](https://circleci.com/docs/parameterized-builds/)
       parameters:
       - in: body
         name: body
@@ -268,7 +251,7 @@ paths:
           type: object
       responses:
         '201':
-          description: returns a summary of the build
+          description: "returns a summary of the build"
           headers:
             Location:
               format: uri
@@ -279,10 +262,11 @@ paths:
     get:
       description: |
         Full details for a single build. The response includes all of the fields from the build summary.
-        This is also the payload for the [notification webhooks](/docs/configuration/#notify), in which case this object is the value to a key named 'payload'.
+        This is also the payload for the [notification webhooks](/docs/configuration/#notify), in which case
+        this object is the value to a key named 'payload'.
       responses:
         '200':
-          description: Full details for a single build
+          description: "Full details for a single build"
           schema:
             "$ref": "#/definitions/BuildDetail"
     parameters:
@@ -294,7 +278,7 @@ paths:
       description: 'List the artifacts produced by a given build.'
       responses:
         '200':
-          description: List the artifacts produced by a given build
+          description: "List the artifacts produced by a given build"
           schema:
             "$ref": "#/definitions/Artifacts"
     parameters:
@@ -310,7 +294,7 @@ paths:
       description: 'Cancels the build, returns a summary of the build.'
       responses:
         '200':
-          description: returns a summary of the build
+          description: "returns a summary of the build"
           schema:
             "$ref": "#/definitions/Build"
   "/project/{username}/{project}/{build_num}/retry":
@@ -322,17 +306,18 @@ paths:
       description: 'Retries the build, returns a summary of the new build.'
       responses:
         '200':
-          description: returns a summary of the new build
+          description: "returns a summary of the new build"
           schema:
             "$ref": "#/definitions/Build"
   "/project/{username}/{project}/{build_num}/tests":
     get:
       description: |
         Provides test metadata for a build
-        Note: [Learn how to set up your builds to collect test metadata](https://circleci.com/docs/test-metadata/)
+        Note: |
+          [Learn how to set up your builds to collect test metadata](https://circleci.com/docs/test-metadata/)
       responses:
         '200':
-          description: 'test metadata for a build'
+          description: "test metadata for a build"
           schema:
             "$ref": "#/definitions/Tests"
     parameters:
@@ -341,23 +326,21 @@ paths:
     - "$ref": "#/parameters/build_num"
   "/recent-builds":
     get:
-      description: 'Build summary for each of the last 30 recent builds, ordered by
-        build_num.'
+      description: "Build summary for each of the last 30 recent builds, ordered by build_num."
       parameters:
       - "$ref": "#/parameters/limit"
       - "$ref": "#/parameters/offset"
       responses:
         '200':
-          description: Build summary for each of the last 30 recent builds
+          description: "Build summary for each of the last 30 recent builds"
           schema:
             "$ref": "#/definitions/Builds"
   "/user/heroku-key":
     post:
-      description: 'Adds your Heroku API key to CircleCI, takes apikey as form param
-        name.'
+      description: "Adds your Heroku API key to CircleCI, takes apikey as form param name."
       responses:
         '403':
-          description: 'Your Heroku API key is invalid.'
+          description: "Your Heroku API key is invalid."
           schema:
             properties:
               message:
@@ -388,7 +371,7 @@ definitions:
   Build:
     properties:
       body:
-        description: commit message body
+        description: "commit message body"
         type: string
       branch:
         type: string
@@ -403,27 +386,34 @@ definitions:
       committer_name:
         type: string
       dont_build:
-        description: reason why we didn't build, if we didn't build
+        description: "reason why we didn't build, if we didn't build"
         type: string
       lifecycle:
-        "$ref": "#/definitions/Lifecycle"
+        enum:
+        - finished
+        - not_run
+        - not_running
+        - queued
+        - running
+        - scheduled
+        type: string
       previous:
         "$ref": "#/definitions/PreviousBuild"
       queued_at:
-        description: time build was queued
+        description: "time build was queued"
         format: date-time
         type: string
       reponame:
         type: string
       retry_of:
-        description: build_num of the build this is a retry of
+        description: "build_num of the build this is a retry of"
         type: integer
       start_time:
-        description: time build started
+        description: "time build started"
         format: date-time
         type: string
       stop_time:
-        description: time build finished
+        description: "time build finished"
         format: date-time
         type: string
       subject:
@@ -434,11 +424,34 @@ definitions:
         format: uri
         type: string
       why:
-        description: short string explaining the reason we built
+        description: "short string explaining the reason we built"
+        type: string
+      workflows:
+        "$ref": "#/definitions/Workflows"
+    type: object
+  Workflows:
+    properties:
+      job_name:
+        type: string
+      job_id:
+        type: string
+      workflow_id:
+        type: string
+      workspace_id:
+        type: string
+      upstream_job_ids:
+        items:
+          type: string
+        type: array
+      upstream_concurrency_map:
+        items:
+          type: string
+        type: array
+      workflow_name:
         type: string
     type: object
   BuildDetail:
-    description: previous build
+    description: "previous build"
     properties:
       all_commit_details:
         "$ref": "#/definitions/CommitDetails"
@@ -464,7 +477,7 @@ definitions:
         "$ref": "#/definitions/User"
     type: object
   BuildParameters:
-    description: 'Additional environment variables to inject into the build environment. A map of names to values.'
+    description: "Additional environment variables to inject into the build environment. A map of names to values."
     type: object
   BuildSummary:
     properties:
@@ -474,7 +487,14 @@ definitions:
       build_num:
         type: integer
       outcome:
-        "$ref": "#/definitions/Outcome"
+        enum:
+        - finished
+        - not_run
+        - not_running
+        - queued
+        - running
+        - scheduled
+        type: string
       pushed_at:
         format: date-time
         type: string
@@ -482,11 +502,41 @@ definitions:
         "$ref": "#/definitions/Status"
       vcs_revision:
         "$ref": "#/definitions/Sha1"
+      is_workflow_job:
+        type: boolean
     type: object
   Builds:
     items:
       "$ref": "#/definitions/Build"
     type: array
+  BuildWorkflow:
+    properties:
+      status:
+        "$ref": "#/definitions/Status"
+      created_at:
+        format: date-time
+        type: string
+      id:
+        type: string
+  Branch:
+    properties:
+      pusher_logins:
+        items:
+          type: string
+        type: array
+      latest_workflows:
+        "$ref": "#/definitions/BuildWorkflow"
+      latest_completed_workflows:
+        "$ref": "#/definitions/BuildWorkflow"
+      last_non_success:
+        "$ref": "#/definitions/BuildSummary"
+      last_success:
+        "$ref": "#/definitions/BuildSummary"
+      recent_builds:
+        "$ref": "#/definitions/BuildSummary"
+      running_builds:
+        "$ref": "#/definitions/Builds"
+    type: object
   CommitDetail:
     properties:
       author_date:
@@ -543,11 +593,11 @@ definitions:
       public_key:
         type: string
       time:
-        description: when the key was issued
+        description: "when the key was issued"
         format: date-time
         type: string
       type:
-        description: 'can be "deploy-key" or "github-user-key"'
+        description: "can be 'deploy-key' or 'github-user-key'"
         enum:
         - deploy-key
         - github-user-key
@@ -557,29 +607,11 @@ definitions:
     items:
       "$ref": "#/definitions/Key"
     type: array
-  Lifecycle:
-    enum:
-    - finished
-    - not_run
-    - not_running
-    - queued
-    - running
-    - scheduled
-    type: string
-  Outcome:
-    enum:
-    - canceled
-    - failed
-    - infrastructure_fail
-    - no_tests
-    - success
-    - timedout
-    type: string
   Parallel:
-    description: 'The number of containers to use to run the build. Default is null and the project default is used.'
+    description: "The number of containers to use to run the build. Default is null and the project default is used."
     type: string
   PreviousBuild:
-    description: previous build
+    description: "previous build"
     properties:
       build_num:
         type: integer
@@ -593,7 +625,9 @@ definitions:
       aws:
         "$ref": "#/definitions/Aws"
       branches:
-        type: object
+        items:
+          "$ref": "#/definitions/Branch"
+        type: array
       campfire_notify_prefs:
         "$ref": "#/definitions/StringOrNull"
       campfire_room:
@@ -665,7 +699,15 @@ definitions:
         type: string
       scopes:
         items:
-          "$ref": "#/definitions/Scope"
+          enum:
+          - all
+          - none
+          - read-settings
+          - status
+          - trigger-builds
+          - view-builds
+          - write-settings
+          type: string
         type: array
       setup:
         type: string
@@ -701,16 +743,6 @@ definitions:
       The specific revision to build.
       Default is null and the head of the branch is used. Cannot be used with tag parameter.
     type: string
-  Scope:
-    enum:
-    - all
-    - none
-    - read-settings
-    - status
-    - trigger-builds
-    - view-builds
-    - write-settings
-    type: string
   Sha1:
     type: string
   Status:
@@ -731,9 +763,9 @@ definitions:
     type: string
   StringOrNull:
     type: string
-    default: null
+    default: ""
   Tag:
-    description: 'The tag to build. Default is null. Cannot be used with revision parameter.'
+    description: "The tag to build. Default is null. Cannot be used with revision parameter."
     type: string
   Tests:
     properties:
@@ -792,6 +824,8 @@ definitions:
         items:
           type: string
         type: array
+      first_vcs_authorized_client_id:
+        "$ref": "#/definitions/StringOrNull"
       github_id:
         type: integer
         format: int64
@@ -804,12 +838,24 @@ definitions:
         format: int64
       heroku_api_key:
         type: string
+      identities:
+        properties:
+          github:
+            "$ref": "#/definitions/GitHubIdentitiy"
+          bitbucket:
+            "$ref": "#/definitions/Identitiy"
+          google:
+            "$ref": "#/definitions/Identitiy"
+        type: object
       in_beta_program:
         type: boolean
       login:
         type: string
       name:
         type: string
+      num_projects_followed:
+        type: integer
+        format: int64
       organization_prefs:
         type: object
       parallelism:
@@ -827,14 +873,64 @@ definitions:
       sign_in_count:
         type: integer
         format: int64
+      student:
+        type: boolean
       trial_end:
         format: date-time
+        type: string
+    type: object
+  Identitiy:
+    properties:
+      avatar_url:
+        type: string
+      external_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      user?:
+        type: boolean
+      domain:
+        type: string
+      type:
+        type: string
+      authorized?:
+        type: boolean
+      provider_id:
+        type: string
+      login:
+        type: string
+    type: object
+  GitHubIdentitiy:
+    properties:
+      avatar_url:
+        type: string
+      external_id:
+        type: integer
+        format: int64
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      user?:
+        type: boolean
+      domain:
+        type: string
+      type:
+        type: string
+      authorized?:
+        type: boolean
+      provider_id:
+        type: string
+      login:
         type: string
     type: object
 
 parameters:
   branch:
-    description: 'The branch name should be url-encoded.'
+    description: "The branch name should be url-encoded."
     in: path
     name: branch
     required: true
@@ -871,14 +967,14 @@ parameters:
     type: string
   limit:
     default: 30
-    description: 'The number of builds to return. Maximum 100, defaults to 30.'
+    description: "The number of builds to return. Maximum 100, defaults to 30."
     in: query
     maximum: 100
     name: limit
     type: integer
   offset:
     default: 0
-    description: 'The API returns builds starting from this offset, defaults to 0.'
+    description: "The API returns builds starting from this offset, defaults to 0."
     in: query
     name: offset
     type: integer
