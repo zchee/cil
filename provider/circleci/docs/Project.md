@@ -1,0 +1,51 @@
+# Project
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**Aws** | [***Aws**](Aws.md) |  | [optional] [default to null]
+**Branches** | [**[]Branch**](Branch.md) |  | [optional] [default to null]
+**CampfireNotifyPrefs** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**CampfireRoom** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**CampfireSubdomain** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**CampfireToken** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**Compile** | **string** |  | [optional] [default to null]
+**DefaultBranch** | **string** |  | [optional] [default to null]
+**Dependencies** | **string** |  | [optional] [default to null]
+**Extra** | **string** |  | [optional] [default to null]
+**FeatureFlags** | [***ProjectFeatureFlags**](Project_feature_flags.md) |  | [optional] [default to null]
+**FlowdockApiToken** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**Followed** | **bool** |  | [optional] [default to null]
+**HasUsableKey** | **bool** |  | [optional] [default to null]
+**HerokuDeployUser** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**HipchatApiToken** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**HipchatNotify** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**HipchatNotifyPrefs** | **string** |  | [optional] [default to null]
+**HipchatRoom** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcChannel** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcKeyword** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcNotifyPrefs** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcPassword** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcServer** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**IrcUsername** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**Language** | **string** |  | [optional] [default to null]
+**Oss** | **bool** |  | [optional] [default to null]
+**Parallel** | **int32** |  | [optional] [default to null]
+**Reponame** | **string** |  | [optional] [default to null]
+**Scopes** | **[]string** |  | [optional] [default to null]
+**Setup** | **string** |  | [optional] [default to null]
+**SlackApiToken** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**SlackChannel** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**SlackChannelOverride** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**SlackNotifyPrefs** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**SlackSubdomain** | [***StringOrNull**](StringOrNull.md) |  | [optional] [default to null]
+**SlackWebhookUrl** | **string** |  | [optional] [default to null]
+**SshKeys** | **[]string** |  | [optional] [default to null]
+**Test** | **string** |  | [optional] [default to null]
+**Username** | **string** |  | [optional] [default to null]
+**VcsType** | **string** |  | [optional] [default to null]
+**VcsUrl** | **string** |  | [optional] [default to null]
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

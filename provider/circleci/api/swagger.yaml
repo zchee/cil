@@ -1,0 +1,1798 @@
+---
+swagger: "2.0"
+info:
+  description: "The CircleCI API is a fully-featured JSON API that\nallows you to\
+    \ access all information and trigger all actions in CircleCI.\n"
+  version: "v1.1"
+  title: "CircleCI API"
+  license:
+    name: "The 3-Clause BSD License"
+    url: "https://opensource.org/licenses/BSD-3-Clause"
+host: "circleci.com"
+basePath: "/api/v1.1"
+schemes:
+- "https"
+consumes:
+- "application/json; charset=utf-8"
+produces:
+- "application/json"
+security:
+- apikey: []
+- basicAuth: []
+paths:
+  /me:
+    get:
+      description: "Provides information about the signed in user."
+      operationId: "me"
+      parameters: []
+      responses:
+        200:
+          description: "signed in user"
+          schema:
+            $ref: "#/definitions/User"
+  /projects:
+    get:
+      description: "List of all the projects you''re following on CircleCI, with build\
+        \ information organized by branch."
+      operationId: "projects"
+      parameters: []
+      responses:
+        200:
+          description: "List of all the projects you''re following on CircleCI"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Project"
+  /project/{username}/{project}:
+    get:
+      description: "Build summary for each of the last 30 builds for a single git\
+        \ repo."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "limit"
+        in: "query"
+        description: "The number of builds to return. Maximum 100, defaults to 30."
+        required: false
+        type: "integer"
+        default: 30
+        maximum: 100
+        x-exportParamName: "Limit"
+      - name: "offset"
+        in: "query"
+        description: "The API returns builds starting from this offset, defaults to\
+          \ 0."
+        required: false
+        type: "integer"
+        default: 0
+        x-exportParamName: "Offset"
+      - name: "filter"
+        in: "query"
+        description: "Restricts which builds are returned.\nSet to \"completed\",\
+          \ \"successful\", \"failed\", \"running\", or defaults to no filter.\n"
+        required: false
+        type: "string"
+        enum:
+        - "completed"
+        - "failed"
+        - "running"
+        - "successful"
+        x-exportParamName: "Filter"
+      responses:
+        200:
+          description: "Build summary for each of the last 30 builds"
+          schema:
+            $ref: "#/definitions/Builds"
+    post:
+      description: "Triggers a new build, returns a summary of the build."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/body"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "returns a summary of the build"
+          schema:
+            $ref: "#/definitions/BuildSummary"
+  /project/{username}/{project}/build-cache:
+    delete:
+      description: "Clears the cache for a project."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      responses:
+        200:
+          description: "status message"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+  /project/{username}/{project}/checkout-key:
+    get:
+      description: "Lists checkout keys."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      responses:
+        200:
+          description: "checkout keys"
+          schema:
+            $ref: "#/definitions/Keys"
+    post:
+      description: "Creates a new checkout key.\nOnly usable with a user API token.\n"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - in: "body"
+        name: "type"
+        description: "The type of key to create. Can be 'deploy-key' or 'github-user-key'."
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "deploy-key"
+          - "github-user-key"
+        x-exportParamName: "Type_"
+      responses:
+        200:
+          description: "checkout key"
+          schema:
+            $ref: "#/definitions/Key"
+  /project/{username}/{project}/checkout-key/{fingerprint}:
+    get:
+      description: "Get a checkout key."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "fingerprint"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Fingerprint"
+      responses:
+        200:
+          description: "checkout key"
+          schema:
+            $ref: "#/definitions/Key"
+    delete:
+      description: "Delete a checkout key."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "fingerprint"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Fingerprint"
+      responses:
+        200:
+          description: "status message"
+          schema:
+            $ref: "#/definitions/inline_response_200_1"
+  /project/{username}/{project}/envvar:
+    get:
+      description: "Lists the environment variables for :project"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      responses:
+        200:
+          description: "XXX"
+          schema:
+            $ref: "#/definitions/Envvars"
+    post:
+      description: "Creates a new environment variable"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      responses:
+        200:
+          description: "XXX"
+          schema:
+            $ref: "#/definitions/Envvar"
+  /project/{username}/{project}/envvar/{name}:
+    get:
+      description: "Gets the hidden value of environment variable :name"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "name"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Name"
+      responses:
+        200:
+          description: "XXX"
+          schema:
+            $ref: "#/definitions/Envvar"
+    delete:
+      description: "Deletes the environment variable named ':name'"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "name"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Name"
+      responses:
+        200:
+          description: "Deletes the environment variable named ':name'"
+          schema:
+            $ref: "#/definitions/inline_response_200_1"
+  /project/{username}/{project}/ssh-key:
+    post:
+      description: "Create an ssh key used to access external systems that require\
+        \ SSH key-based authentication"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "Content-Type"
+        in: "header"
+        required: true
+        type: "string"
+        enum:
+        - "application/json"
+        x-exportParamName: "ContentType"
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/body_1"
+        x-exportParamName: "Body"
+      responses:
+        default:
+          description: "no response expected"
+          schema:
+            $ref: "#/definitions/inline_response_default"
+          examples:
+            application/json:
+              message: "a private key is required"
+  /project/{username}/{project}/tree/{branch}:
+    post:
+      description: "Triggers a new build, returns a summary of the build.\nOptional\
+        \ build parameters can be set using an experimental API.\n\nNote: |\n  For\
+        \ more about build parameters,\n  read about [using parameterized builds](https://circleci.com/docs/parameterized-builds/)\n"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "branch"
+        in: "path"
+        description: "The branch name should be url-encoded."
+        required: true
+        type: "string"
+        x-exportParamName: "Branch"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/body_2"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "returns a summary of the build"
+          schema:
+            $ref: "#/definitions/Build"
+          headers:
+            Location:
+              type: "string"
+              format: "uri"
+  /project/{username}/{project}/{build_num}:
+    get:
+      description: "Full details for a single build. The response includes all of\
+        \ the fields from the build summary.\nThis is also the payload for the [notification\
+        \ webhooks](/docs/configuration/#notify), in which case\nthis object is the\
+        \ value to a key named 'payload'.\n"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "build_num"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "integer"
+        x-exportParamName: "BuildNum"
+      responses:
+        200:
+          description: "Full details for a single build"
+          schema:
+            $ref: "#/definitions/BuildDetail"
+  /project/{username}/{project}/{build_num}/artifacts:
+    get:
+      description: "List the artifacts produced by a given build."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "build_num"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "integer"
+        x-exportParamName: "BuildNum"
+      responses:
+        200:
+          description: "List the artifacts produced by a given build"
+          schema:
+            $ref: "#/definitions/Artifacts"
+  /project/{username}/{project}/{build_num}/cancel:
+    post:
+      description: "Cancels the build, returns a summary of the build."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "build_num"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "integer"
+        x-exportParamName: "BuildNum"
+      responses:
+        200:
+          description: "returns a summary of the build"
+          schema:
+            $ref: "#/definitions/Build"
+  /project/{username}/{project}/{build_num}/retry:
+    post:
+      description: "Retries the build, returns a summary of the new build."
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "build_num"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "integer"
+        x-exportParamName: "BuildNum"
+      responses:
+        200:
+          description: "returns a summary of the new build"
+          schema:
+            $ref: "#/definitions/Build"
+  /project/{username}/{project}/{build_num}/tests:
+    get:
+      description: "Provides test metadata for a build\nNote: |\n  [Learn how to set\
+        \ up your builds to collect test metadata](https://circleci.com/docs/test-metadata/)\n"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Username"
+      - name: "project"
+        in: "path"
+        description: "XXXXXXXXX"
+        required: true
+        type: "string"
+        x-exportParamName: "Project"
+      - name: "build_num"
+        in: "path"
+        description: "XXXXXXXXXX"
+        required: true
+        type: "integer"
+        x-exportParamName: "BuildNum"
+      responses:
+        200:
+          description: "test metadata for a build"
+          schema:
+            $ref: "#/definitions/Tests"
+  /recent-builds:
+    get:
+      description: "Build summary for each of the last 30 recent builds, ordered by\
+        \ build_num."
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "The number of builds to return. Maximum 100, defaults to 30."
+        required: false
+        type: "integer"
+        default: 30
+        maximum: 100
+        x-exportParamName: "Limit"
+      - name: "offset"
+        in: "query"
+        description: "The API returns builds starting from this offset, defaults to\
+          \ 0."
+        required: false
+        type: "integer"
+        default: 0
+        x-exportParamName: "Offset"
+      responses:
+        200:
+          description: "Build summary for each of the last 30 recent builds"
+          schema:
+            $ref: "#/definitions/Builds"
+  /user/heroku-key:
+    post:
+      description: "Adds your Heroku API key to CircleCI, takes apikey as form param\
+        \ name."
+      parameters: []
+      responses:
+        403:
+          description: "Your Heroku API key is invalid."
+          schema:
+            $ref: "#/definitions/inline_response_default"
+securityDefinitions:
+  apikey:
+    type: "apiKey"
+    name: "circle-token"
+    in: "query"
+  basicAuth:
+    type: "basic"
+definitions:
+  Artifact:
+    type: "object"
+    properties:
+      node_index:
+        type: "integer"
+      path:
+        type: "string"
+      pretty_path:
+        type: "string"
+      url:
+        type: "string"
+  Artifacts:
+    type: "array"
+    items:
+      $ref: "#/definitions/Artifact"
+  Aws:
+    type: "object"
+    properties:
+      keypair:
+        type: "string"
+    example:
+      keypair: "keypair"
+  Build:
+    type: "object"
+    properties:
+      body:
+        type: "string"
+        description: "commit message body"
+      branch:
+        type: "string"
+      build_time_millis:
+        type: "integer"
+      build_url:
+        type: "string"
+        format: "uri"
+      committer_email:
+        type: "string"
+        format: "email"
+      committer_name:
+        type: "string"
+      dont_build:
+        type: "string"
+        description: "reason why we didn't build, if we didn't build"
+      lifecycle:
+        type: "string"
+        enum:
+        - "finished"
+        - "not_run"
+        - "not_running"
+        - "queued"
+        - "running"
+        - "scheduled"
+      previous:
+        $ref: "#/definitions/PreviousBuild"
+      queued_at:
+        type: "string"
+        format: "date-time"
+        description: "time build was queued"
+      reponame:
+        type: "string"
+      retry_of:
+        type: "integer"
+        description: "build_num of the build this is a retry of"
+      start_time:
+        type: "string"
+        format: "date-time"
+        description: "time build started"
+      stop_time:
+        type: "string"
+        format: "date-time"
+        description: "time build finished"
+      subject:
+        type: "string"
+      username:
+        type: "string"
+      vcs_url:
+        type: "string"
+        format: "uri"
+      why:
+        type: "string"
+        description: "short string explaining the reason we built"
+      workflows:
+        $ref: "#/definitions/Workflows"
+    example:
+      retry_of: 5
+      committer_email: "committer_email"
+      stop_time: "2000-01-23T04:56:07.000+00:00"
+      previous:
+        build_num: 6
+        build_time_millis: 1
+        status: {}
+      queued_at: "2000-01-23T04:56:07.000+00:00"
+      subject: "subject"
+      vcs_url: "http://example.com/aeiou"
+      build_time_millis: 0
+      dont_build: "dont_build"
+      why: "why"
+      workflows:
+        workspace_id: "workspace_id"
+        workflow_id: "workflow_id"
+        job_name: "job_name"
+        upstream_job_ids:
+        - "upstream_job_ids"
+        - "upstream_job_ids"
+        workflow_name: "workflow_name"
+        job_id: "job_id"
+        upstream_concurrency_map:
+        - "upstream_concurrency_map"
+        - "upstream_concurrency_map"
+      body: "body"
+      branch: "branch"
+      committer_name: "committer_name"
+      lifecycle: "finished"
+      start_time: "2000-01-23T04:56:07.000+00:00"
+      reponame: "reponame"
+      build_url: "http://example.com/aeiou"
+      username: "username"
+  Workflows:
+    type: "object"
+    properties:
+      job_name:
+        type: "string"
+      job_id:
+        type: "string"
+      workflow_id:
+        type: "string"
+      workspace_id:
+        type: "string"
+      upstream_job_ids:
+        type: "array"
+        items:
+          type: "string"
+      upstream_concurrency_map:
+        type: "array"
+        items:
+          type: "string"
+      workflow_name:
+        type: "string"
+    example:
+      workspace_id: "workspace_id"
+      workflow_id: "workflow_id"
+      job_name: "job_name"
+      upstream_job_ids:
+      - "upstream_job_ids"
+      - "upstream_job_ids"
+      workflow_name: "workflow_name"
+      job_id: "job_id"
+      upstream_concurrency_map:
+      - "upstream_concurrency_map"
+      - "upstream_concurrency_map"
+  BuildDetail:
+    type: "object"
+    properties:
+      all_commit_details:
+        $ref: "#/definitions/CommitDetails"
+      compare:
+        type: "string"
+        format: "uri"
+      job_name:
+        type: "string"
+      previous_successful_build:
+        $ref: "#/definitions/PreviousBuild"
+      retries:
+        type: "boolean"
+      ssh_enabled:
+        type: "boolean"
+      timedout:
+        type: "boolean"
+      usage_queued_at:
+        type: "string"
+        format: "date-time"
+      user:
+        $ref: "#/definitions/User"
+    description: "previous build"
+    example:
+      all_commit_details: ""
+      retries: true
+      compare: "http://example.com/aeiou"
+      timedout: true
+      job_name: "job_name"
+      previous_successful_build:
+        build_num: 6
+        build_time_millis: 1
+        status: {}
+      ssh_enabled: true
+      usage_queued_at: "2000-01-23T04:56:07.000+00:00"
+      user:
+        days_left_in_trial: 6
+        projects: "{}"
+        student: true
+        parallelism: 9
+        admin: true
+        created_at: "2000-01-23T04:56:07.000+00:00"
+        sign_in_count: 3
+        bitbucket: "{}"
+        login: "login"
+        pusher_id: "pusher_id"
+        identities:
+          github:
+            user?: true
+            avatar_url: "avatar_url"
+            authorized?: true
+            domain: "domain"
+            name: "name"
+            provider_id: "provider_id"
+            external_id: 5
+            id: 2
+            type: "type"
+            login: "login"
+          google:
+            user?: true
+            avatar_url: "avatar_url"
+            authorized?: true
+            domain: "domain"
+            name: "name"
+            provider_id: "provider_id"
+            external_id: "external_id"
+            id: "id"
+            type: "type"
+            login: "login"
+          bitbucket:
+            user?: true
+            avatar_url: "avatar_url"
+            authorized?: true
+            domain: "domain"
+            name: "name"
+            provider_id: "provider_id"
+            external_id: "external_id"
+            id: "id"
+            type: "type"
+            login: "login"
+        all_emails:
+        - "all_emails"
+        - "all_emails"
+        gravatar_id: 5
+        organization_prefs: "{}"
+        plan: "plan"
+        first_vcs_authorized_client_id: {}
+        github_oauth_scopes:
+        - "github_oauth_scopes"
+        - "github_oauth_scopes"
+        bitbucket_authorized: true
+        analytics_id: "analytics_id"
+        trial_end: "2000-01-23T04:56:07.000+00:00"
+        enrolled_betas:
+        - "enrolled_betas"
+        - "enrolled_betas"
+        basic_email_prefs: "basic_email_prefs"
+        avatar_url: "http://example.com/aeiou"
+        in_beta_program: true
+        selected_email: "selected_email"
+        dev_admin: true
+        heroku_api_key: "heroku_api_key"
+        name: "name"
+        containers: 0
+        github_id: 1
+        num_projects_followed: 7
+  BuildParameters:
+    type: "object"
+    description: "Additional environment variables to inject into the build environment.\
+      \ A map of names to values."
+  BuildSummary:
+    type: "object"
+    properties:
+      added_at:
+        type: "string"
+        format: "date-time"
+      build_num:
+        type: "integer"
+      outcome:
+        type: "string"
+        enum:
+        - "finished"
+        - "not_run"
+        - "not_running"
+        - "queued"
+        - "running"
+        - "scheduled"
+      pushed_at:
+        type: "string"
+        format: "date-time"
+      status:
+        $ref: "#/definitions/Status"
+      vcs_revision:
+        $ref: "#/definitions/Sha1"
+      is_workflow_job:
+        type: "boolean"
+    example:
+      added_at: "2000-01-23T04:56:07.000+00:00"
+      pushed_at: "2000-01-23T04:56:07.000+00:00"
+      build_num: 0
+      is_workflow_job: true
+      outcome: "finished"
+      status: null
+      vcs_revision: {}
+  Builds:
+    type: "array"
+    items:
+      $ref: "#/definitions/Build"
+  BuildWorkflow:
+    properties:
+      status:
+        $ref: "#/definitions/Status"
+      created_at:
+        type: "string"
+        format: "date-time"
+      id:
+        type: "string"
+    example:
+      created_at: "2000-01-23T04:56:07.000+00:00"
+      id: "id"
+      status: {}
+  Branch:
+    type: "object"
+    properties:
+      pusher_logins:
+        type: "array"
+        items:
+          type: "string"
+      latest_workflows:
+        $ref: "#/definitions/BuildWorkflow"
+      latest_completed_workflows:
+        $ref: "#/definitions/BuildWorkflow"
+      last_non_success:
+        $ref: "#/definitions/BuildSummary"
+      last_success:
+        $ref: "#/definitions/BuildSummary"
+      recent_builds:
+        $ref: "#/definitions/BuildSummary"
+      running_builds:
+        $ref: "#/definitions/Builds"
+    example:
+      latest_workflows:
+        created_at: "2000-01-23T04:56:07.000+00:00"
+        id: "id"
+        status: {}
+      pusher_logins:
+      - "pusher_logins"
+      - "pusher_logins"
+      latest_completed_workflows:
+        created_at: "2000-01-23T04:56:07.000+00:00"
+        id: "id"
+        status: {}
+      last_success:
+        added_at: "2000-01-23T04:56:07.000+00:00"
+        pushed_at: "2000-01-23T04:56:07.000+00:00"
+        build_num: 0
+        is_workflow_job: true
+        outcome: "finished"
+        status: null
+        vcs_revision: {}
+      running_builds: ""
+      last_non_success:
+        added_at: "2000-01-23T04:56:07.000+00:00"
+        pushed_at: "2000-01-23T04:56:07.000+00:00"
+        build_num: 0
+        is_workflow_job: true
+        outcome: "finished"
+        status: null
+        vcs_revision: {}
+      recent_builds:
+        added_at: "2000-01-23T04:56:07.000+00:00"
+        pushed_at: "2000-01-23T04:56:07.000+00:00"
+        build_num: 0
+        is_workflow_job: true
+        outcome: "finished"
+        status: null
+        vcs_revision: {}
+  CommitDetail:
+    type: "object"
+    properties:
+      author_date:
+        type: "string"
+        format: "date-time"
+      author_email:
+        type: "string"
+        format: "email"
+      author_login:
+        type: "string"
+      author_name:
+        type: "string"
+      body:
+        type: "string"
+      commit:
+        $ref: "#/definitions/Sha1"
+      commit_url:
+        type: "string"
+        format: "uri"
+      committer_date:
+        type: "string"
+        format: "date-time"
+      committer_email:
+        type: "string"
+        format: "email"
+      committer_login:
+        type: "string"
+      committer_name:
+        type: "string"
+      subject:
+        type: "string"
+  CommitDetails:
+    type: "array"
+    items:
+      $ref: "#/definitions/CommitDetail"
+  Envvar:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      value:
+        type: "string"
+    example:
+      name: "name"
+      value: "value"
+  Envvars:
+    type: "array"
+    items:
+      $ref: "#/definitions/Envvar"
+  Key:
+    type: "object"
+    properties:
+      fingerprint:
+        type: "string"
+      preferred:
+        type: "boolean"
+      public_key:
+        type: "string"
+      time:
+        type: "string"
+        format: "date-time"
+        description: "when the key was issued"
+      type:
+        type: "string"
+        description: "can be 'deploy-key' or 'github-user-key'"
+        enum:
+        - "deploy-key"
+        - "github-user-key"
+    example:
+      public_key: "public_key"
+      fingerprint: "fingerprint"
+      time: "2000-01-23T04:56:07.000+00:00"
+      type: "deploy-key"
+      preferred: true
+  Keys:
+    type: "array"
+    items:
+      $ref: "#/definitions/Key"
+  Parallel:
+    type: "string"
+    description: "The number of containers to use to run the build. Default is null\
+      \ and the project default is used."
+  PreviousBuild:
+    type: "object"
+    properties:
+      build_num:
+        type: "integer"
+      build_time_millis:
+        type: "integer"
+      status:
+        $ref: "#/definitions/Status"
+    description: "previous build"
+    example:
+      build_num: 6
+      build_time_millis: 1
+      status: {}
+  Project:
+    type: "object"
+    properties:
+      aws:
+        $ref: "#/definitions/Aws"
+      branches:
+        type: "array"
+        items:
+          $ref: "#/definitions/Branch"
+      campfire_notify_prefs:
+        $ref: "#/definitions/StringOrNull"
+      campfire_room:
+        $ref: "#/definitions/StringOrNull"
+      campfire_subdomain:
+        $ref: "#/definitions/StringOrNull"
+      campfire_token:
+        $ref: "#/definitions/StringOrNull"
+      compile:
+        type: "string"
+      default_branch:
+        type: "string"
+      dependencies:
+        type: "string"
+      extra:
+        type: "string"
+      feature_flags:
+        $ref: "#/definitions/Project_feature_flags"
+      flowdock_api_token:
+        $ref: "#/definitions/StringOrNull"
+      followed:
+        type: "boolean"
+      has_usable_key:
+        type: "boolean"
+      heroku_deploy_user:
+        $ref: "#/definitions/StringOrNull"
+      hipchat_api_token:
+        $ref: "#/definitions/StringOrNull"
+      hipchat_notify:
+        $ref: "#/definitions/StringOrNull"
+      hipchat_notify_prefs:
+        type: "string"
+      hipchat_room:
+        $ref: "#/definitions/StringOrNull"
+      irc_channel:
+        $ref: "#/definitions/StringOrNull"
+      irc_keyword:
+        $ref: "#/definitions/StringOrNull"
+      irc_notify_prefs:
+        $ref: "#/definitions/StringOrNull"
+      irc_password:
+        $ref: "#/definitions/StringOrNull"
+      irc_server:
+        $ref: "#/definitions/StringOrNull"
+      irc_username:
+        $ref: "#/definitions/StringOrNull"
+      language:
+        type: "string"
+      oss:
+        type: "boolean"
+      parallel:
+        type: "integer"
+      reponame:
+        type: "string"
+      scopes:
+        type: "array"
+        items:
+          type: "string"
+          enum:
+          - "all"
+          - "none"
+          - "read-settings"
+          - "status"
+          - "trigger-builds"
+          - "view-builds"
+          - "write-settings"
+      setup:
+        type: "string"
+      slack_api_token:
+        $ref: "#/definitions/StringOrNull"
+      slack_channel:
+        $ref: "#/definitions/StringOrNull"
+      slack_channel_override:
+        $ref: "#/definitions/StringOrNull"
+      slack_notify_prefs:
+        $ref: "#/definitions/StringOrNull"
+      slack_subdomain:
+        $ref: "#/definitions/StringOrNull"
+      slack_webhook_url:
+        type: "string"
+        format: "uri"
+      ssh_keys:
+        type: "array"
+        items:
+          type: "string"
+      test:
+        type: "string"
+      username:
+        type: "string"
+      vcs_type:
+        type: "string"
+      vcs_url:
+        type: "string"
+        format: "uri"
+    example:
+      slack_api_token: null
+      slack_channel: null
+      vcs_url: "http://example.com/aeiou"
+      slack_notify_prefs: null
+      language: "language"
+      slack_webhook_url: "http://example.com/aeiou"
+      irc_channel: null
+      campfire_notify_prefs: {}
+      campfire_token: null
+      oss: true
+      campfire_room: null
+      compile: "compile"
+      hipchat_notify_prefs: "hipchat_notify_prefs"
+      parallel: 6
+      extra: "extra"
+      irc_server: null
+      hipchat_room: null
+      slack_subdomain: null
+      flowdock_api_token: null
+      test: "test"
+      hipchat_api_token: null
+      hipchat_notify: null
+      has_usable_key: true
+      heroku_deploy_user: null
+      irc_password: null
+      slack_channel_override: null
+      branches:
+      - latest_workflows:
+          created_at: "2000-01-23T04:56:07.000+00:00"
+          id: "id"
+          status: {}
+        pusher_logins:
+        - "pusher_logins"
+        - "pusher_logins"
+        latest_completed_workflows:
+          created_at: "2000-01-23T04:56:07.000+00:00"
+          id: "id"
+          status: {}
+        last_success:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+        running_builds: ""
+        last_non_success:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+        recent_builds:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+      - latest_workflows:
+          created_at: "2000-01-23T04:56:07.000+00:00"
+          id: "id"
+          status: {}
+        pusher_logins:
+        - "pusher_logins"
+        - "pusher_logins"
+        latest_completed_workflows:
+          created_at: "2000-01-23T04:56:07.000+00:00"
+          id: "id"
+          status: {}
+        last_success:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+        running_builds: ""
+        last_non_success:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+        recent_builds:
+          added_at: "2000-01-23T04:56:07.000+00:00"
+          pushed_at: "2000-01-23T04:56:07.000+00:00"
+          build_num: 0
+          is_workflow_job: true
+          outcome: "finished"
+          status: null
+          vcs_revision: {}
+      followed: true
+      campfire_subdomain: null
+      dependencies: "dependencies"
+      vcs_type: "vcs_type"
+      irc_username: null
+      ssh_keys:
+      - "ssh_keys"
+      - "ssh_keys"
+      reponame: "reponame"
+      irc_notify_prefs: null
+      feature_flags:
+        fleet: true
+        build-fork-prs: true
+        junit: true
+        trusty-beta: true
+        osx: true
+        oss: true
+        set-github-status: true
+      irc_keyword: null
+      setup: "setup"
+      default_branch: "default_branch"
+      scopes:
+      - "all"
+      - "all"
+      aws:
+        keypair: "keypair"
+      username: "username"
+  Revision:
+    type: "string"
+    description: "The specific revision to build.\nDefault is null and the head of\
+      \ the branch is used. Cannot be used with tag parameter.\n"
+  Sha1:
+    type: "string"
+  Status:
+    type: "string"
+    enum:
+    - "canceled"
+    - "failed"
+    - "fixed"
+    - "infrastructure_fail"
+    - "no_tests"
+    - "not_run"
+    - "not_running"
+    - "queued"
+    - "retried"
+    - "running"
+    - "scheduled"
+    - "success"
+    - "timedout"
+  StringOrNull:
+    type: "string"
+    default: ""
+  Tag:
+    type: "string"
+    description: "The tag to build. Default is null. Cannot be used with revision\
+      \ parameter."
+  Tests:
+    type: "object"
+    properties:
+      tests:
+        type: "array"
+        items:
+          $ref: "#/definitions/Tests_tests"
+    example:
+      tests:
+      - result: {}
+        file: "file"
+        classname: "classname"
+        run_time: 0.80082819046101150206595775671303272247314453125
+        name: "name"
+        source: "source"
+        message: "message"
+      - result: {}
+        file: "file"
+        classname: "classname"
+        run_time: 0.80082819046101150206595775671303272247314453125
+        name: "name"
+        source: "source"
+        message: "message"
+  User:
+    type: "object"
+    properties:
+      admin:
+        type: "boolean"
+      all_emails:
+        type: "array"
+        items:
+          type: "string"
+          format: "email"
+      analytics_id:
+        type: "string"
+      avatar_url:
+        type: "string"
+        format: "uri"
+      basic_email_prefs:
+        type: "string"
+      bitbucket:
+        type: "object"
+        properties: {}
+      bitbucket_authorized:
+        type: "boolean"
+      containers:
+        type: "integer"
+        format: "int64"
+      created_at:
+        type: "string"
+        format: "date-time"
+      days_left_in_trial:
+        type: "integer"
+        format: "int64"
+      dev_admin:
+        type: "boolean"
+      enrolled_betas:
+        type: "array"
+        items:
+          type: "string"
+      first_vcs_authorized_client_id:
+        $ref: "#/definitions/StringOrNull"
+      github_id:
+        type: "integer"
+        format: "int64"
+      github_oauth_scopes:
+        type: "array"
+        items:
+          type: "string"
+      gravatar_id:
+        type: "integer"
+        format: "int64"
+      heroku_api_key:
+        type: "string"
+      identities:
+        $ref: "#/definitions/User_identities"
+      in_beta_program:
+        type: "boolean"
+      login:
+        type: "string"
+      name:
+        type: "string"
+      num_projects_followed:
+        type: "integer"
+        format: "int64"
+      organization_prefs:
+        type: "object"
+        properties: {}
+      parallelism:
+        type: "integer"
+        format: "int64"
+      plan:
+        type: "string"
+      projects:
+        type: "object"
+        properties: {}
+      pusher_id:
+        type: "string"
+      selected_email:
+        type: "string"
+        format: "email"
+      sign_in_count:
+        type: "integer"
+        format: "int64"
+      student:
+        type: "boolean"
+      trial_end:
+        type: "string"
+        format: "date-time"
+    example:
+      days_left_in_trial: 6
+      projects: "{}"
+      student: true
+      parallelism: 9
+      admin: true
+      created_at: "2000-01-23T04:56:07.000+00:00"
+      sign_in_count: 3
+      bitbucket: "{}"
+      login: "login"
+      pusher_id: "pusher_id"
+      identities:
+        github:
+          user?: true
+          avatar_url: "avatar_url"
+          authorized?: true
+          domain: "domain"
+          name: "name"
+          provider_id: "provider_id"
+          external_id: 5
+          id: 2
+          type: "type"
+          login: "login"
+        google:
+          user?: true
+          avatar_url: "avatar_url"
+          authorized?: true
+          domain: "domain"
+          name: "name"
+          provider_id: "provider_id"
+          external_id: "external_id"
+          id: "id"
+          type: "type"
+          login: "login"
+        bitbucket:
+          user?: true
+          avatar_url: "avatar_url"
+          authorized?: true
+          domain: "domain"
+          name: "name"
+          provider_id: "provider_id"
+          external_id: "external_id"
+          id: "id"
+          type: "type"
+          login: "login"
+      all_emails:
+      - "all_emails"
+      - "all_emails"
+      gravatar_id: 5
+      organization_prefs: "{}"
+      plan: "plan"
+      first_vcs_authorized_client_id: {}
+      github_oauth_scopes:
+      - "github_oauth_scopes"
+      - "github_oauth_scopes"
+      bitbucket_authorized: true
+      analytics_id: "analytics_id"
+      trial_end: "2000-01-23T04:56:07.000+00:00"
+      enrolled_betas:
+      - "enrolled_betas"
+      - "enrolled_betas"
+      basic_email_prefs: "basic_email_prefs"
+      avatar_url: "http://example.com/aeiou"
+      in_beta_program: true
+      selected_email: "selected_email"
+      dev_admin: true
+      heroku_api_key: "heroku_api_key"
+      name: "name"
+      containers: 0
+      github_id: 1
+      num_projects_followed: 7
+  Identitiy:
+    type: "object"
+    properties:
+      avatar_url:
+        type: "string"
+      external_id:
+        type: "string"
+      id:
+        type: "string"
+      name:
+        type: "string"
+      user?:
+        type: "boolean"
+      domain:
+        type: "string"
+      type:
+        type: "string"
+      authorized?:
+        type: "boolean"
+      provider_id:
+        type: "string"
+      login:
+        type: "string"
+    example:
+      user?: true
+      avatar_url: "avatar_url"
+      authorized?: true
+      domain: "domain"
+      name: "name"
+      provider_id: "provider_id"
+      external_id: "external_id"
+      id: "id"
+      type: "type"
+      login: "login"
+  GitHubIdentitiy:
+    type: "object"
+    properties:
+      avatar_url:
+        type: "string"
+      external_id:
+        type: "integer"
+        format: "int64"
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      user?:
+        type: "boolean"
+      domain:
+        type: "string"
+      type:
+        type: "string"
+      authorized?:
+        type: "boolean"
+      provider_id:
+        type: "string"
+      login:
+        type: "string"
+    example:
+      user?: true
+      avatar_url: "avatar_url"
+      authorized?: true
+      domain: "domain"
+      name: "name"
+      provider_id: "provider_id"
+      external_id: 5
+      id: 2
+      type: "type"
+      login: "login"
+  body:
+    type: "object"
+    properties:
+      build_parameters:
+        $ref: "#/definitions/BuildParameters"
+      parallel:
+        $ref: "#/definitions/Parallel"
+      revision:
+        $ref: "#/definitions/Revision"
+      tag:
+        $ref: "#/definitions/Tag"
+  inline_response_200:
+    properties:
+      status:
+        type: "string"
+    example:
+      status: "status"
+  inline_response_200_1:
+    properties:
+      message:
+        type: "string"
+        enum:
+        - "OK"
+    example:
+      message: "OK"
+  body_1:
+    type: "object"
+    properties:
+      hostname:
+        type: "string"
+      private_key:
+        type: "string"
+  inline_response_default:
+    properties:
+      message:
+        type: "string"
+  body_2:
+    type: "object"
+    properties:
+      build_parameters:
+        $ref: "#/definitions/BuildParameters"
+      parallel:
+        $ref: "#/definitions/Parallel"
+      revision:
+        $ref: "#/definitions/Revision"
+  Project_feature_flags:
+    properties:
+      build-fork-prs:
+        type: "boolean"
+      fleet:
+        type: "boolean"
+      junit:
+        type: "boolean"
+      oss:
+        type: "boolean"
+      osx:
+        type: "boolean"
+      set-github-status:
+        type: "boolean"
+      trusty-beta:
+        type: "boolean"
+    example:
+      fleet: true
+      build-fork-prs: true
+      junit: true
+      trusty-beta: true
+      osx: true
+      oss: true
+      set-github-status: true
+  Tests_tests:
+    properties:
+      classname:
+        type: "string"
+      file:
+        type: "string"
+      message:
+        type: "string"
+      name:
+        type: "string"
+      result:
+        $ref: "#/definitions/Status"
+      run_time:
+        type: "number"
+      source:
+        type: "string"
+    example:
+      result: {}
+      file: "file"
+      classname: "classname"
+      run_time: 0.80082819046101150206595775671303272247314453125
+      name: "name"
+      source: "source"
+      message: "message"
+  User_identities:
+    properties:
+      github:
+        $ref: "#/definitions/GitHubIdentitiy"
+      bitbucket:
+        $ref: "#/definitions/Identitiy"
+      google:
+        $ref: "#/definitions/Identitiy"
+    example:
+      github:
+        user?: true
+        avatar_url: "avatar_url"
+        authorized?: true
+        domain: "domain"
+        name: "name"
+        provider_id: "provider_id"
+        external_id: 5
+        id: 2
+        type: "type"
+        login: "login"
+      google:
+        user?: true
+        avatar_url: "avatar_url"
+        authorized?: true
+        domain: "domain"
+        name: "name"
+        provider_id: "provider_id"
+        external_id: "external_id"
+        id: "id"
+        type: "type"
+        login: "login"
+      bitbucket:
+        user?: true
+        avatar_url: "avatar_url"
+        authorized?: true
+        domain: "domain"
+        name: "name"
+        provider_id: "provider_id"
+        external_id: "external_id"
+        id: "id"
+        type: "type"
+        login: "login"
+parameters:
+  branch:
+    name: "branch"
+    in: "path"
+    description: "The branch name should be url-encoded."
+    required: true
+    type: "string"
+    x-exportParamName: "Branch"
+  build_num:
+    name: "build_num"
+    in: "path"
+    description: "XXXXXXXXXX"
+    required: true
+    type: "integer"
+    x-exportParamName: "BuildNum"
+  envvar_name:
+    name: "name"
+    in: "path"
+    description: "XXXXXXXXXX"
+    required: true
+    type: "string"
+    x-exportParamName: "Name"
+  filter:
+    name: "filter"
+    in: "query"
+    description: "Restricts which builds are returned.\nSet to \"completed\", \"successful\"\
+      , \"failed\", \"running\", or defaults to no filter.\n"
+    required: false
+    type: "string"
+    enum:
+    - "completed"
+    - "failed"
+    - "running"
+    - "successful"
+    x-exportParamName: "Filter"
+  fingerprint:
+    name: "fingerprint"
+    in: "path"
+    description: "XXXXXXXXXX"
+    required: true
+    type: "string"
+    x-exportParamName: "Fingerprint"
+  limit:
+    name: "limit"
+    in: "query"
+    description: "The number of builds to return. Maximum 100, defaults to 30."
+    required: false
+    type: "integer"
+    default: 30
+    maximum: 100
+    x-exportParamName: "Limit"
+  offset:
+    name: "offset"
+    in: "query"
+    description: "The API returns builds starting from this offset, defaults to 0."
+    required: false
+    type: "integer"
+    default: 0
+    x-exportParamName: "Offset"
+  project:
+    name: "project"
+    in: "path"
+    description: "XXXXXXXXX"
+    required: true
+    type: "string"
+    x-exportParamName: "Project"
+  username:
+    name: "username"
+    in: "path"
+    description: "XXXXXXXXX"
+    required: true
+    type: "string"
+    x-exportParamName: "Username"
+responses:
+  envvar:
+    description: "XXX"
+    schema:
+      $ref: "#/definitions/Envvar"
+  envvars:
+    description: "XXX"
+    schema:
+      $ref: "#/definitions/Envvars"
+  key:
+    description: "checkout key"
+    schema:
+      $ref: "#/definitions/Key"
+externalDocs:
+  description: "CircleCI API v1.1 Reference"
+  url: "https://circleci.com/docs/api/v1-reference/"
