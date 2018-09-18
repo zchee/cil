@@ -17,5 +17,5 @@
 *.out
 
 # binary
-cil
+/cil
 tools/*
